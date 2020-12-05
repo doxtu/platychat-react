@@ -50,7 +50,7 @@ const LoginPage = ({ history }) => {
             name='username'
             variant='outlined'
             size='small'
-            placeholder='username'
+            placeholder='email'
             value={loginForm.username}
             onChange={handleChange}
             className={classes.formElement}

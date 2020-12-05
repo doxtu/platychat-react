@@ -1,8 +1,9 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { store } from '../../redux/store'
+import { io } from 'socket.io-client'
 
-import { convoListResponse } from '../../redux/socket/socket.reducer'
+import { convoListResponse, setSocket } from '../../redux/socket/socket.reducer'
 import {
   setConvos,
   setMessageSearchResults,
@@ -17,6 +18,7 @@ const SocketIOProvider = ({
   convoListResponse,
   setConvos,
   forceRerender,
+  setSocket,
   setMessageSearchResults,
 }) => {
   React.useEffect(() => {
@@ -79,6 +81,22 @@ const SocketIOProvider = ({
       setMessageSearchResults(JSON.parse(messages))
     })
 
+    //eslint-disable-next-line
+  }, [socket, setUser, forceRerender])
+
+  React.useState(() => {
+    window.addEventListener('focus', () => {
+      //When socket reloads, all the old messages will just get reappended.
+      store.getState().socket.socket.off()
+      setSocket(
+        io(
+          process.env.NODE_ENV === 'production'
+            ? process.env.REACT_APP_PROD_URL
+            : process.env.REACT_APP_DEV_URL
+        )
+      )
+    })
+
     window.addEventListener('paste', (e) => {
       const currentConvoid = store.getState().messages.currentConvoid
 
@@ -118,10 +136,7 @@ const SocketIOProvider = ({
       }
       fileReader.readAsDataURL(blob)
     })
-
-    // return socket.disconnect()
-    //eslint-disable-next-line
-  }, [socket, setUser, forceRerender])
+  }, [])
 
   return null
 }
@@ -139,6 +154,7 @@ const mapDispatchToProps = (dispatch) => ({
   forceRerender: () => dispatch(forceRerender()),
   setMessageSearchResults: (messages) =>
     dispatch(setMessageSearchResults(messages)),
+  setSocket: (socket) => dispatch(setSocket(socket)),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SocketIOProvider)

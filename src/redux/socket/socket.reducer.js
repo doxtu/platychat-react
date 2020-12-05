@@ -1,6 +1,10 @@
 import { io } from 'socket.io-client'
 
-const socket = io('https://doxtu.me')
+const socket = io(
+  process.env.NODE_ENV === 'production'
+    ? process.env.REACT_APP_PROD_URL
+    : process.env.REACT_APP_DEV_URL
+)
 const SocketIOFileUpload = require('socketio-file-upload')
 
 export const SET_SOCKET = '[SOCKET] SET_SOCKET'
@@ -27,6 +31,7 @@ const socketReducer = (state = INITIAL_STATE, { type, payload }) => {
       return {
         ...state,
         socket: payload,
+        uploader: new SocketIOFileUpload(payload),
       }
     }
     default:

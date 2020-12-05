@@ -1,7 +1,6 @@
 import React from 'react'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { store } from '../../redux/store'
 
 import {
   Box,
@@ -12,6 +11,7 @@ import {
   ListItemAvatar,
   Button,
   TextField,
+  Link,
 } from '@material-ui/core'
 
 import useStyles from './messages.styles'
@@ -50,34 +50,34 @@ const MessagesPage = ({
   setCurrentConvoid,
   currentConvoid,
 }) => {
-  const projectURL = 'https://doxtu.me/platychat2'
+  console.log('render!!!!')
+  const projectURL =
+    process.env.NODE_ENV === 'production'
+      ? process.env.REACT_APP_PROD_URL + process.env.REACT_APP_ROOT_DIRECTORY
+      : process.env.REACT_APP_DEV_URL + process.env.REACT_APP_ROOT_DIRECTORY
   const convoid = match.url.split('/')[2]
   const currentConvo = convos[convoid]
   const currentMessages = currentConvo ? currentConvo.messages : []
 
   React.useEffect(() => {
-    const interval = setInterval(() => {
-      const socket = store.getState().socket.socket
-      if (!socket) return
-      socket.emit('convo-join-request', user.token, user.uid, convoid)
-    }, 5000)
-
-    // return clearInterval(interval)
-  }, [])
-
-  React.useEffect(() => {
     setCurrentConvoid(convoid)
   }, [currentConvoid])
+
+  React.useEffect(() => {
+    socket.emit('convo-join-request', user.token, user.uid, currentConvoid)
+  }, [socket, user])
 
   const classes = useStyles()
 
   const [message, setMessage] = React.useState('')
   const [list, setList] = React.useState(null)
 
-  if (list && list.scrollTo)
-    list.scrollTo({
-      top: 1000000,
-    })
+  React.useEffect(() => {
+    if (list && list.scrollTo)
+      list.scrollTo({
+        top: 1000000,
+      })
+  }, [list, convos])
 
   const handleChange = (e) => {
     const { value } = e.target
@@ -150,6 +150,38 @@ const MessagesPage = ({
                     </Box>
                   )
 
+                //replace with Link if contains links
+                let hasHttpLink = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(
+                  rawtext
+                )
+
+                if (hasHttpLink) {
+                  let links = rawtext.match(
+                    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g
+                  )
+
+                  links.forEach((link) => {
+                    rawtext = rawtext.replace(link, '~')
+                  })
+
+                  let text = rawtext.split('~')
+
+                  rawtext = (
+                    <span>
+                      {text.map((d, index) => (
+                        <span key={index}>
+                          {d}
+                          {links[index] ? (
+                            <Link href={links[index]} target='_blank'>
+                              {links[index]}
+                            </Link>
+                          ) : null}{' '}
+                        </span>
+                      ))}
+                    </span>
+                  )
+                }
+
                 return (
                   <ListItem key={index}>
                     <ListItemAvatar>
@@ -178,7 +210,7 @@ const MessagesPage = ({
       </Grid>
 
       <Grid className={classes.inputGroup} item {...gridSizes}>
-        <form onSubmit={handleSubmit}>
+        <form autoComplete='off' onSubmit={handleSubmit}>
           <Grid container spacing={1} alignItems='center' justify='center'>
             <Grid item {...textFieldSizes}>
               <TextField
@@ -186,6 +218,7 @@ const MessagesPage = ({
                 name='message'
                 value={message}
                 variant='outlined'
+                autoComplete='off'
                 fullWidth
                 onChange={handleChange}
               />

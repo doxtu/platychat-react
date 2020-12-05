@@ -31,9 +31,12 @@ function App({ socket, user, darkModeEnabled, setUser, setConvos }) {
 
       setUser(user)
     })
+    // eslint-disable-next-line
+  }, [])
 
+  React.useEffect(() => {
     if (socket && user) socket.emit('login-request', user.token, user.uid)
-  }, [socket, user, setUser])
+  }, [socket, user])
 
   const superTheme = React.useMemo(
     () =>
@@ -48,7 +51,7 @@ function App({ socket, user, darkModeEnabled, setUser, setConvos }) {
   )
 
   return (
-    <BrowserRouter basename='/platychat2'>
+    <BrowserRouter basename={process.env.REACT_APP_ROOT_DIRECTORY}>
       <ThemeProvider theme={superTheme}>
         <CssBaseline />
         <SocketIOProvider />

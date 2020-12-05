@@ -102,13 +102,21 @@ const ConvosCard = ({ history, convos, user, socket }) => {
 
         <Grid className={classes.convoList} item {...gridSizes}>
           <List dense>
-            {Object.keys(convos).map((convo, index) => (
-              <ConvoListItem
-                key={index}
-                convo={convos[convo]}
-                history={history}
-              />
-            ))}
+            {Object.keys(convos)
+              .sort((convo1, convo2) => {
+                if (convos[convo1].unreadCount > convos[convo2].unreadCount)
+                  return -1
+                if (convos[convo1].unreadCount < convos[convo2].unreadCount)
+                  return 1
+                return 0
+              })
+              .map((convo, index) => (
+                <ConvoListItem
+                  key={index}
+                  convo={convos[convo]}
+                  history={history}
+                />
+              ))}
           </List>
         </Grid>
       </Grid>

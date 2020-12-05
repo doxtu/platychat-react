@@ -41,6 +41,7 @@ const ConvosPage = ({ history, socket, user }) => {
           fullWidth
           onClick={() => {
             auth.signOut()
+            localStorage.clear()
             history.push('/login')
           }}>
           Sign Out
