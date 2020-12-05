@@ -50,7 +50,6 @@ const MessagesPage = ({
   setCurrentConvoid,
   currentConvoid,
 }) => {
-  console.log('render!!!!')
   const projectURL =
     process.env.NODE_ENV === 'production'
       ? process.env.REACT_APP_PROD_URL + process.env.REACT_APP_ROOT_DIRECTORY
