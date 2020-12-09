@@ -24,19 +24,21 @@ const GalleryCard = ({ socket, user, urls }) => {
   return (
     <Card className={classes.root}>
       <Grid container spacing={1} alignItems='center'>
-        {urls.map((url, index) => (
-          <Grid key={index} item {...gridSizes}>
-            <img
-              className={classes.img}
-              alt='happy-face'
-              src={
-                process.env.NODE_ENV === 'production'
-                  ? `${process.env.REACT_APP_PROD_URL}/platychat/${url.rawtext}`
-                  : `${process.env.REACT_APP_DEV_URL}/platychat/${url.rawtext}`
-              }
-            />
-          </Grid>
-        ))}
+        {urls
+          ? urls.map((url, index) => (
+              <Grid key={index} item {...gridSizes}>
+                <img
+                  className={classes.img}
+                  alt='happy-face'
+                  src={
+                    process.env.NODE_ENV === 'production'
+                      ? `${process.env.REACT_APP_PROD_URL}/platychat/${url.rawtext}`
+                      : `${process.env.REACT_APP_DEV_URL}/platychat/${url.rawtext}`
+                  }
+                />
+              </Grid>
+            ))
+          : null}
       </Grid>
     </Card>
   )
