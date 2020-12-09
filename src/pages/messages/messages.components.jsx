@@ -145,7 +145,10 @@ const MessagesPage = ({
                   rawtext = (
                     <Box>
                       <br></br>
-                      <img src={`${projectURL}/${rawtext}`} />
+                      <img
+                        src={`${projectURL}/${rawtext}`}
+                        style={{ width: '100%' }}
+                      />
                     </Box>
                   )
 

@@ -8,6 +8,7 @@ import { Grid, Button } from '@material-ui/core'
 import ConvosCard from './components/convos-card/convos-card.components'
 import SearchCard from './components/search-card/search-card.components'
 import SettingsCard from './components/settings-card/settings-card.components'
+import GalleryCard from './components/gallery-card/gallery-card.components'
 
 import useStyles from './convos.styles'
 
@@ -55,6 +56,9 @@ const ConvosPage = ({ history, socket, user }) => {
       </Grid>
       <Grid item {...gridSizes}>
         <SettingsCard />
+      </Grid>
+      <Grid item {...fullWidthGridSizes}>
+        <GalleryCard />
       </Grid>
     </Grid>
   )

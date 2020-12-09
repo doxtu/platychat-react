@@ -7,8 +7,9 @@ import { convoListResponse, setSocket } from '../../redux/socket/socket.reducer'
 import {
   setConvos,
   setMessageSearchResults,
+  setGalleryUrls,
 } from '../../redux/messages/messages.reducer'
-import { setUser, forceRerender } from '../../redux/base/base.reducer'
+import { setUser } from '../../redux/base/base.reducer'
 
 console.warn = () => {}
 
@@ -17,9 +18,9 @@ const SocketIOProvider = ({
   socket,
   convoListResponse,
   setConvos,
-  forceRerender,
   setSocket,
   setMessageSearchResults,
+  setGalleryUrls,
 }) => {
   React.useEffect(() => {
     if (!socket) return
@@ -40,6 +41,11 @@ const SocketIOProvider = ({
       convoListResponse(normalizedConvos)
     })
 
+    socket.on('convo-gallery-response', (imageUrls) => {
+      const urls = JSON.parse(imageUrls)
+      setGalleryUrls(urls)
+    })
+
     socket.on('convo-create-response', (convoid, convoname) => {
       const convos = store.getState().messages.convos
       setConvos({
@@ -57,6 +63,8 @@ const SocketIOProvider = ({
         },
       })
     })
+
+    socket.on('convo-message-response', (convoid) => {})
 
     socket.on(
       'convo-message-incoming',
@@ -82,9 +90,9 @@ const SocketIOProvider = ({
     })
 
     //eslint-disable-next-line
-  }, [socket, setUser, forceRerender])
+  }, [socket, setUser])
 
-  React.useState(() => {
+  React.useEffect(() => {
     window.addEventListener('focus', () => {
       //When socket reloads, all the old messages will just get reappended.
       store.getState().socket.socket.off()
@@ -124,7 +132,6 @@ const SocketIOProvider = ({
 
       blob.meta = fileIdentifier
       fileReader.onload = function (e) {
-        //inputMessenger.value = '/image ' + e.target.result;
         socket.emit(
           'convo-message-request',
           store.getState().base.user.token,
@@ -151,10 +158,10 @@ const mapDispatchToProps = (dispatch) => ({
   convoListResponse: (convos) => dispatch(convoListResponse(convos)),
   setConvos: (convos) => dispatch(setConvos(convos)),
   setUser: (user) => dispatch(setUser(user)),
-  forceRerender: () => dispatch(forceRerender()),
   setMessageSearchResults: (messages) =>
     dispatch(setMessageSearchResults(messages)),
   setSocket: (socket) => dispatch(setSocket(socket)),
+  setGalleryUrls: (urls) => dispatch(setGalleryUrls(urls)),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SocketIOProvider)
