@@ -9,6 +9,7 @@ import ConvosCard from './components/convos-card/convos-card.components'
 import SearchCard from './components/search-card/search-card.components'
 import SettingsCard from './components/settings-card/settings-card.components'
 import GalleryCard from './components/gallery-card/gallery-card.components'
+import SuckCounterCard from './components/suck-counter-card/suck-counter-card.components'
 
 import useStyles from './convos.styles'
 
@@ -30,7 +31,10 @@ const fullWidthGridSizes = {
 
 const ConvosPage = ({ history, socket, user }) => {
   React.useEffect(() => {
-    if (socket && user) socket.emit('convo-list-request', user.token, user.uid)
+    if (socket && user) {
+      socket.emit('convo-list-request', user.token, user.uid)
+      socket.emit('suck-counter-request', user.token, user.uid)
+    }
   }, [socket, user])
 
   const classes = useStyles()
@@ -59,6 +63,9 @@ const ConvosPage = ({ history, socket, user }) => {
       </Grid>
       <Grid item {...fullWidthGridSizes}>
         <GalleryCard />
+      </Grid>
+      <Grid item {...gridSizes}>
+        <SuckCounterCard />
       </Grid>
     </Grid>
   )

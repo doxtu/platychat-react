@@ -8,8 +8,9 @@ import {
   setConvos,
   setMessageSearchResults,
   setGalleryUrls,
+  setSuckCounter,
 } from '../../redux/messages/messages.reducer'
-import { setUser } from '../../redux/base/base.reducer'
+import { forceRerender, setUser } from '../../redux/base/base.reducer'
 
 console.warn = () => {}
 
@@ -21,6 +22,8 @@ const SocketIOProvider = ({
   setSocket,
   setMessageSearchResults,
   setGalleryUrls,
+  setSuckCounter,
+  forceRerender,
 }) => {
   React.useEffect(() => {
     if (!socket) return
@@ -64,7 +67,7 @@ const SocketIOProvider = ({
       })
     })
 
-    socket.on('convo-message-response', (convoid) => {})
+    socket.on('convo-message-response', () => {})
 
     socket.on(
       'convo-message-incoming',
@@ -88,6 +91,17 @@ const SocketIOProvider = ({
     socket.on('convo-search-response', (messages) => {
       setMessageSearchResults(JSON.parse(messages))
     })
+
+    socket.on('convo-image-response', () => {
+      const currentConvoid = store.getState().messages.currentConvoid
+      const user = store.getState().base.user
+      const socket = store.getState().socket.socket
+
+      if (socket && user)
+        socket.emit('convo-join-request', user.token, user.uid, currentConvoid)
+    })
+
+    socket.on('suck-counter-response', setSuckCounter)
 
     //eslint-disable-next-line
   }, [socket, setUser])
@@ -162,6 +176,8 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(setMessageSearchResults(messages)),
   setSocket: (socket) => dispatch(setSocket(socket)),
   setGalleryUrls: (urls) => dispatch(setGalleryUrls(urls)),
+  setSuckCounter: (count) => dispatch(setSuckCounter(count)),
+  forceRerender: (randomNum) => dispatch(forceRerender(randomNum)),
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SocketIOProvider)

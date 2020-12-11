@@ -13,14 +13,15 @@ export const setUser = (user) => ({
   payload: user,
 })
 
-export const forceRerender = () => ({
+export const forceRerender = (randomNum) => ({
   type: FORCED_RERENDER,
-  payload: Math.random(),
+  payload: randomNum,
 })
 
 const INITIAL_STATE = {
   darkModeEnabled: false,
   user: null,
+  rerender: 0,
 }
 
 const baseReducer = (state = INITIAL_STATE, { type, payload }) => {
@@ -38,6 +39,13 @@ const baseReducer = (state = INITIAL_STATE, { type, payload }) => {
       return {
         ...state,
         user: payload,
+      }
+    }
+    case FORCED_RERENDER: {
+      console.log('so mad')
+      return {
+        ...state,
+        rerender: payload,
       }
     }
     default:
