@@ -72,6 +72,7 @@ const SocketIOProvider = ({
     socket.on(
       'convo-message-incoming',
       (convoid, todayString, alias, color, timestamp, rawtext) => {
+        console.log('message arrived')
         const convos = store.getState().messages.convos
         setConvos({
           ...convos,
@@ -114,7 +115,10 @@ const SocketIOProvider = ({
         io(
           process.env.NODE_ENV === 'production'
             ? process.env.REACT_APP_PROD_URL
-            : process.env.REACT_APP_DEV_URL
+            : process.env.REACT_APP_DEV_URL,
+          {
+            timeout: 180000,
+          }
         )
       )
     })

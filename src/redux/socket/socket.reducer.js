@@ -3,7 +3,10 @@ import { io } from 'socket.io-client'
 const socket = io(
   process.env.NODE_ENV === 'production'
     ? process.env.REACT_APP_PROD_URL
-    : process.env.REACT_APP_DEV_URL
+    : process.env.REACT_APP_DEV_URL,
+  {
+    timeout: 180000,
+  }
 )
 const SocketIOFileUpload = require('socketio-file-upload')
 
@@ -28,6 +31,7 @@ const INITIAL_STATE = {
 const socketReducer = (state = INITIAL_STATE, { type, payload }) => {
   switch (type) {
     case SET_SOCKET: {
+      console.log('RECONNECTING', payload)
       return {
         ...state,
         socket: payload,
