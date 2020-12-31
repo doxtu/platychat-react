@@ -3,10 +3,7 @@ import { io } from 'socket.io-client'
 const socket = io(
   process.env.NODE_ENV === 'production'
     ? process.env.REACT_APP_PROD_URL
-    : process.env.REACT_APP_DEV_URL,
-  {
-    timeout: 180000,
-  }
+    : process.env.REACT_APP_DEV_URL
 )
 const SocketIOFileUpload = require('socketio-file-upload')
 

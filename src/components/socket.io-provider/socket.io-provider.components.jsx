@@ -14,6 +14,19 @@ import { forceRerender, setUser } from '../../redux/base/base.reducer'
 
 console.warn = () => {}
 
+let hidden, visibilityChange
+
+if (typeof document.hidden !== undefined) {
+  hidden = 'hidden'
+  visibilityChange = 'visibilitychange'
+} else if (typeof document.msHidden !== 'undefined') {
+  hidden = 'msHidden'
+  visibilityChange = 'msvisibilitychange'
+} else if (typeof document.webkitHidden !== 'undefined') {
+  hidden = 'webkitHidden'
+  visibilityChange = 'webkitvisibilitychange'
+}
+
 const SocketIOProvider = ({
   user,
   socket,
@@ -115,10 +128,18 @@ const SocketIOProvider = ({
         io(
           process.env.NODE_ENV === 'production'
             ? process.env.REACT_APP_PROD_URL
-            : process.env.REACT_APP_DEV_URL,
-          {
-            timeout: 180000,
-          }
+            : process.env.REACT_APP_DEV_URL
+        )
+      )
+    })
+
+    document.addEventListener(visibilityChange, () => {
+      store.getState().socket.socket.off()
+      setSocket(
+        io(
+          process.env.NODE_ENV === 'production'
+            ? process.env.REACT_APP_PROD_URL
+            : process.env.REACT_APP_DEV_URL
         )
       )
     })
