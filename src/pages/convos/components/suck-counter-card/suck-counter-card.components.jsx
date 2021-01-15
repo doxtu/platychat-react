@@ -5,7 +5,7 @@ import { Card, Grid, Typography, Fab } from '@material-ui/core'
 
 import useStyles from './suck-counter-card.styles'
 
-const SuckCounterCard = ({ user, socket, suckCount }) => {
+const SuckCounterCard = ({ user, socket, isConnected, suckCount }) => {
   const classes = useStyles()
   return (
     <Card className={classes.root}>
@@ -26,13 +26,15 @@ const SuckCounterCard = ({ user, socket, suckCount }) => {
               <Fab
                 color='primary'
                 onClick={() => {
-                  if (socket && user)
-                    socket.emit(
-                      'suck-increment-request',
-                      user.token,
-                      user.uid,
-                      -1
-                    )
+                  if (socket && isConnected && user)
+                    socket.send(JSON.stringify({
+                      type: 'suck-increment-request',
+                      payload: {
+                        jwt: user.token,
+                        userid: user.uid,
+                        valueToAdd: -1
+                      }
+                    }))
                 }}>
                 OPPS
               </Fab>
@@ -46,13 +48,15 @@ const SuckCounterCard = ({ user, socket, suckCount }) => {
               <Fab
                 color='primary'
                 onClick={() => {
-                  if (socket && user)
-                    socket.emit(
-                      'suck-increment-request',
-                      user.token,
-                      user.uid,
-                      1
-                    )
+                  if (socket && isConnected && user)
+                    socket.send(JSON.stringify({
+                      type: 'suck-increment-request',
+                      payload: {
+                        jwt: user.token,
+                        userid: user.uid,
+                        valueToAdd: 1
+                      }
+                    }))
                 }}>
                 SUCK
               </Fab>
@@ -67,6 +71,7 @@ const SuckCounterCard = ({ user, socket, suckCount }) => {
 const mapStateToProps = (state) => ({
   user: state.base.user,
   socket: state.socket.socket,
+  isConnected: state.socket.isConnected,
   suckCount: state.messages.suckCount,
 })
 

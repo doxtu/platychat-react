@@ -13,8 +13,6 @@ import {
 
 import ConvoListItem from '../convo-list-item/convo-list-item.components'
 
-//Icons
-
 import useStyles from './convos-card.styles'
 
 const gridSizes = {
@@ -25,7 +23,7 @@ const gridSizes = {
   xl: 12,
 }
 
-const ConvosCard = ({ history, convos, user, socket }) => {
+const ConvosCard = ({ history, convos, user, socket, isConnected }) => {
   const classes = useStyles()
 
   const [inputFields, setInputFields] = React.useState({
@@ -65,12 +63,22 @@ const ConvosCard = ({ history, convos, user, socket }) => {
               <Button
                 fullWidth
                 onClick={() => {
-                  socket.emit(
-                    'convo-create-request',
-                    user.token,
-                    user.uid,
-                    inputFields.convoName
-                  )
+                  if(socket && user && isConnected)
+                    socket.send(JSON.stringify({
+                      type: 'convo-create-request',
+                      payload: {
+                        jwt: user.token,
+                        userid: user.uid,
+                        convoname: inputFields.convoName
+                      }
+                    }))
+
+                  //socket.emit(
+                  //  'convo-create-request',
+                  //  user.token,
+                  //  user.uid,
+                  //  inputFields.convoName
+                  //)
                   setInputFields({ ...inputFields, convoName: '' })
                 }}>
                 Add
@@ -128,6 +136,7 @@ const mapStateToProps = (state) => ({
   convos: state.messages.convos,
   user: state.base.user,
   socket: state.socket.socket,
+  isConnected: state.socket.isConnected
 })
 
 export default connect(mapStateToProps)(withRouter(ConvosCard))

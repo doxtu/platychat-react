@@ -13,13 +13,21 @@ const gridSizes = {
   xl: 3,
 }
 
-const GalleryCard = ({ socket, user, urls }) => {
+const GalleryCard = ({ socket, isConnected, user, urls }) => {
   const classes = useStyles()
 
   React.useEffect(() => {
-    if (socket && user)
-      socket.emit('convo-gallery-request', user.token, user.uid)
-  }, [socket, user])
+    if (socket && isConnected && user)
+      socket.send(
+        JSON.stringify({
+          type: 'convo-gallery-request',
+          payload: {
+            jwt: user.token,
+            userid: user.uid,
+          },
+        })
+      )
+  }, [socket, isConnected, user])
 
   return (
     <Card className={classes.root}>
@@ -47,6 +55,7 @@ const GalleryCard = ({ socket, user, urls }) => {
 const mapStateToProps = (state) => ({
   user: state.base.user,
   socket: state.socket.socket,
+  isConnected: state.socket.isConnected,
   urls: state.messages.galleryUrls,
 })
 

@@ -21,7 +21,7 @@ const gridSizes = {
   xl: 12,
 }
 
-const SearchCard = ({ socket, user, messageSearchResults }) => {
+const SearchCard = ({ socket, isConnected, user, messageSearchResults }) => {
   const classes = useStyles()
 
   const [searchText, setSearchText] = React.useState('')
@@ -42,13 +42,23 @@ const SearchCard = ({ socket, user, messageSearchResults }) => {
             fullWidth
             variant='contained'
             onClick={() => {
-              if (socket && user)
-                socket.emit(
-                  'convo-search-request',
-                  user.token,
-                  user.uid,
-                  searchText
+              if (socket && isConnected && user)
+                socket.send(
+                  JSON.stringify({
+                   type: 'convo-search-request',
+                    payload: {
+                      jwt: user.token,
+                      userid: user.uid,
+                      searchText: searchText
+                   },
+                 })
                 )
+                //socket.emit(
+                //  'convo-search-request',
+                //  user.token,
+                //  user.uid,
+                //  searchText
+                //)
               setSearchText('')
             }}>
             Search
@@ -74,6 +84,7 @@ const SearchCard = ({ socket, user, messageSearchResults }) => {
 
 const mapStateToProps = (state) => ({
   socket: state.socket.socket,
+  isConnected: state.socket.isConnected,
   user: state.base.user,
   messageSearchResults: state.messages.messageSearchResults,
 })

@@ -26,6 +26,7 @@ const SettingsCard = ({
   darkModeEnabled,
   setDarkModeEnabled,
   socket,
+  isConnected,
   user,
 }) => {
   const classes = useStyles()
@@ -72,13 +73,24 @@ const SettingsCard = ({
             <Grid item xs={3} sm={3} md={3} lg={3} xl={3}>
               <Button
                 onClick={() => {
-                  if (user && user.token && socket)
-                    socket.emit(
-                      'user-alias-request',
-                      user.token,
-                      user.uid,
-                      alias
-                    )
+                  if (user && user.token && socket && isConnected) 
+                   socket.send(
+                     JSON.stringify({
+                       type: 'user-alias-request',
+                       payload: {
+                         jwt: user.token,
+                         userid: user.uid,
+                         alias: alias
+                       },
+                     })
+                   ) 
+
+                    //socket.emit(
+                    //  'user-alias-request',
+                    //  user.token,
+                    //  user.uid,
+                    //  alias
+                    //)
                   setAlias('')
                 }}
                 fullWidth>
@@ -106,12 +118,22 @@ const SettingsCard = ({
               <Button
                 onClick={() => {
                   if (user && user.token && socket)
-                    socket.emit(
-                      'user-color-request',
-                      user.token,
-                      user.uid,
-                      color
+                    socket.send(
+                      JSON.stringify({
+                        type: 'user-color-request',
+                        payload: {
+                          jwt: user.token,
+                          userid: user.uid,
+                          color: color
+                        },
+                      })
                     )
+                    //socket.emit(
+                    //  'user-color-request',
+                    //  user.token,
+                    //  user.uid,
+                    //  color
+                    //)
                   setColor('')
                 }}
                 fullWidth>
@@ -128,6 +150,7 @@ const SettingsCard = ({
 const mapStateToProps = (state) => ({
   darkModeEnabled: state.base.darkModeEnabled,
   socket: state.socket.socket,
+  isConnected: state.socket.isConnected,
   user: state.base.user,
 })
 

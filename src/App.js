@@ -4,7 +4,8 @@ import { auth } from './firebase/firebase.utils'
 
 import AppRoutes from './App.routes'
 import { BrowserRouter } from 'react-router-dom'
-import SocketIOProvider from './components/socket.io-provider/socket.io-provider.components'
+// import SocketIOProvider from './components/socket.io-provider/socket.io-provider.components'
+import WebsocketProvider from './components/websocket-provider/websocket-provider.components'
 import {
   ThemeProvider,
   CssBaseline,
@@ -17,7 +18,14 @@ import theme from './theme/theme'
 import { setUser } from './redux/base/base.reducer'
 import { setConvos } from './redux/messages/messages.reducer'
 
-function App({ socket, user, darkModeEnabled, setUser, setConvos }) {
+function App({
+  socket,
+  isConnected,
+  user,
+  darkModeEnabled,
+  setUser,
+  setConvos,
+}) {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
 
   React.useEffect(() => {
@@ -35,7 +43,16 @@ function App({ socket, user, darkModeEnabled, setUser, setConvos }) {
   }, [])
 
   React.useEffect(() => {
-    if (socket && user) socket.emit('login-request', user.token, user.uid)
+    if (socket && user && isConnected)
+      socket.send(
+        JSON.stringify({
+          type: 'login-request',
+          payload: {
+            jwt: user.token,
+            userid: user.uid,
+          },
+        })
+      )
   }, [socket, user])
 
   const superTheme = React.useMemo(
@@ -54,7 +71,7 @@ function App({ socket, user, darkModeEnabled, setUser, setConvos }) {
     <BrowserRouter basename={process.env.REACT_APP_ROOT_DIRECTORY}>
       <ThemeProvider theme={superTheme}>
         <CssBaseline />
-        <SocketIOProvider />
+        <WebsocketProvider />
         <AppRoutes />
       </ThemeProvider>
     </BrowserRouter>
@@ -65,6 +82,7 @@ const mapStateToProps = (state) => ({
   darkModeEnabled: state.base.darkModeEnabled,
   user: state.base.user,
   socket: state.socket.socket,
+  isConnected: state.socket.isConnected,
   convos: state.messages.convos,
 })
 

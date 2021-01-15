@@ -29,13 +29,29 @@ const fullWidthGridSizes = {
   xl: 12,
 }
 
-const ConvosPage = ({ history, socket, user }) => {
+const ConvosPage = ({ history, socket, isConnected, user }) => {
   React.useEffect(() => {
-    if (socket && user) {
-      socket.emit('convo-list-request', user.token, user.uid)
-      socket.emit('suck-counter-request', user.token, user.uid)
+    if (socket && user && isConnected) {
+      socket.send(
+        JSON.stringify({
+          type: 'convo-list-request',
+          payload: {
+            jwt: user.token,
+            userid: user.uid,
+          },
+        })
+      )
+      socket.send(
+        JSON.stringify({
+          type: 'suck-counter-request',
+          payload: {
+            jwt: user.token,
+            userid: user.uid,
+          },
+        })
+      )
     }
-  }, [socket, user])
+  }, [socket, isConnected, user])
 
   const classes = useStyles()
 
@@ -74,6 +90,7 @@ const ConvosPage = ({ history, socket, user }) => {
 const mapStateToProps = (state) => ({
   socket: state.socket.socket,
   user: state.base.user,
+  isConnected: state.socket.isConnected,
   convos: state.messages.convos,
 })
 

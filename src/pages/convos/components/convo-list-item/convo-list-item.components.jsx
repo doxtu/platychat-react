@@ -6,13 +6,25 @@ import { ListItem, ListItemText, ListItemIcon, Badge } from '@material-ui/core'
 //Icons
 import MessageIcon from '@material-ui/icons/Message'
 
-const ConvoListItem = ({ user, socket, convo, history }) => {
+const ConvoListItem = ({ user, socket, isConnected, convo, history }) => {
   return (
     <ListItem
       button
       onClick={() => {
-        socket.emit('convo-join-request', user.token, user.uid, convo.convoid)
-        history.push(`/messages/${convo.convoid}`)
+        if (isConnected) {
+          socket.send(
+            JSON.stringify({
+              type: 'convo-join-request',
+              payload: {
+                jwt: user.token,
+                userid: user.uid,
+                convoid: convo.convoid,
+              },
+            })
+          )
+
+          history.push(`/messages/${convo.convoid}`)
+        }
       }}>
       <ListItemIcon>
         <Badge badgeContent={convo.unreadCount} color='primary'>
@@ -26,6 +38,7 @@ const ConvoListItem = ({ user, socket, convo, history }) => {
 
 const mapStateToProps = (state) => ({
   socket: state.socket.socket,
+  isConnected: state.socket.isConnected,
   user: state.base.user,
 })
 
